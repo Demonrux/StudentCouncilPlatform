@@ -73,69 +73,82 @@ StudentCouncil/
 
 ## Архитектура
 
-### ER-диаграмма БД
+### Схема БД
 ```mermaid
 erDiagram
-    AspNetUsers ||--o{ Events : "ответственный"
-    AspNetUsers ||--o{ Badges : "получает"
-    Events ||--o{ Badges : "выдаются за"
+    AspNetUsers ||--o{ Events : "ResponsibleUser"
+    AspNetUsers ||--o{ Badges : "User"
+    Events ||--o{ Badges : "Event"
+    AspNetUsers ||--o{ AspNetUserRoles : ""
+    AspNetRoles ||--o{ AspNetUserRoles : ""
 
     AspNetUsers {
         int Id PK
+        string UserName
+        string NormalizedUserName
         string Email
         string NormalizedEmail
-        string UserName
+        bool EmailConfirmed
         string PasswordHash
         string SecurityStamp
-        bool TwoFactorEnabled
-        bool IsActive
-        string FirstName
-        string LastName
-        string Patronymic
-        string Group
-        string Telegram
+        string ConcurrencyStamp
         string PhoneNumber
-        string ClothingSize
+        bool PhoneNumberConfirmed
+        bool TwoFactorEnabled
+        datetime LockoutEnd
+        bool LockoutEnabled
+        int AccessFailedCount
+        string FirstName "max 20, required"
+        string LastName "max 20, required"
+        string Patronymic "max 20"
+        string Group "max 10"
         datetime BirthDate
+        string Telegram "max 20"
+        string ClothingSize "max 10"
         string AvatarPath
-        datetime JoinedAt
-        datetime LastActivityDate
         int Balance
+        int TotalPointsEarned
         int ExperiencePoints
         int Level
         int EventsAttended
         int EventsOrganized
         int TasksCompleted
-        int TotalPointsEarned
+        bool IsActive
+        datetime JoinedAt
+        datetime LastActivityDate
     }
 
     Events {
         int Id PK
-        string Title
-        string Description
-        double Budget
-        datetime EventDate
-        string Location
+        string Title "max 100, required"
+        string Description "max 400"
+        datetime EventDate "required"
+        decimal Budget
+        string Location "max 100, required"
         int RegisteredParticipants
         int ActualParticipants
-        string RegistrationLink
-        int ResponsibleUserId FK
-        int Status
-        string PhotoPath
+        string RegistrationLink "max 200"
+        string PhotoPath "max 200"
+        int Status "Upcoming|Completed|Cancelled"
+        int ResponsibleUserId FK "required"
+        datetime CreatedAt
+        bool IsDeleted
     }
 
     Badges {
         int Id PK
-        int UserId FK
-        int EventId FK
-        string Role
-        string FilePath
+        int UserId FK "required"
+        int EventId FK "required"
+        string Role "max 100, required"
+        string FilePath "max 500, required"
+        datetime CreatedAt
     }
 
     AspNetRoles {
         int Id PK
         string Name
         string NormalizedName
+        string ConcurrencyStamp
     }
 
     AspNetUserRoles {
@@ -143,8 +156,32 @@ erDiagram
         int RoleId FK
     }
 
-    AspNetUsers ||--o{ AspNetUserRoles : "имеет"
-    AspNetRoles ||--o{ AspNetUserRoles : "назначается"
+    AspNetUserClaims {
+        int Id PK
+        int UserId FK
+        string ClaimType
+        string ClaimValue
+    }
+
+    AspNetRoleClaims {
+        int Id PK
+        int RoleId FK
+        string ClaimType
+        string ClaimValue
+    }
+
+    AspNetUserLogins {
+        string LoginProvider PK
+        string ProviderKey PK
+        int UserId FK
+    }
+
+    AspNetUserTokens {
+        int UserId PK
+        string LoginProvider PK
+        string Name PK
+        string Value
+    }
 ```
 
 
