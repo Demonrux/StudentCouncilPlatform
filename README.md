@@ -73,6 +73,79 @@ StudentCouncil/
 
 ## Архитектура
 
+```mermaid
+erDiagram
+    AspNetUsers ||--o{ Events : "ответственный"
+    AspNetUsers ||--o{ Badges : "получает"
+    Events ||--o{ Badges : "выдаются за"
+
+    AspNetUsers {
+        int Id PK
+        string Email
+        string NormalizedEmail
+        string UserName
+        string PasswordHash
+        string SecurityStamp
+        bool TwoFactorEnabled
+        bool IsActive
+        string FirstName
+        string LastName
+        string Patronymic
+        string Group
+        string Telegram
+        string PhoneNumber
+        string ClothingSize
+        datetime BirthDate
+        string AvatarPath
+        datetime JoinedAt
+        datetime LastActivityDate
+        int Balance
+        int ExperiencePoints
+        int Level
+        int EventsAttended
+        int EventsOrganized
+        int TasksCompleted
+        int TotalPointsEarned
+    }
+
+    Events {
+        int Id PK
+        string Title
+        string Description
+        double Budget
+        datetime EventDate
+        string Location
+        int RegisteredParticipants
+        int ActualParticipants
+        string RegistrationLink
+        int ResponsibleUserId FK
+        int Status
+        string PhotoPath
+    }
+
+    Badges {
+        int Id PK
+        int UserId FK
+        int EventId FK
+        string Role
+        string FilePath
+    }
+
+    AspNetRoles {
+        int Id PK
+        string Name
+        string NormalizedName
+    }
+
+    AspNetUserRoles {
+        int UserId FK
+        int RoleId FK
+    }
+
+    AspNetUsers ||--o{ AspNetUserRoles : "имеет"
+    AspNetRoles ||--o{ AspNetUserRoles : "назначается"
+```
+
 ---
 
 ## Локальный запуск
