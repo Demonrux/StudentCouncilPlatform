@@ -1,205 +1,368 @@
-# Платформа студенческого совета СГН
+<p align="center">
+  <img src="StudentCouncil.Frontend/public/favicon.svg" width="100" alt="Логотип" />
+</p>
 
-**Полноценное веб-приложение** для управления студенческим советом: учёт участников, организация мероприятий, выдача бейджей, система уровней и баллов.
+<h1 align="center">Платформа студенческого совета СГН</h1>
 
-[![C#](https://img.shields.io/badge/C%23-8.0-blue.svg)](https://dotnet.microsoft.com/download)
-[![React](https://img.shields.io/badge/React-19.0-blue.svg)](https://reactjs.org/)
+<p align="center">
+  Веб-приложение для управления студенческим советом: участники, мероприятия, бейджи, аналитика.
+</p>
 
-
-## Состояние проекта
-
-| Статус | Описание |
-|--------|----------|
-| **Бэкенд** | ASP.NET Core 8, Identity, EF Core, PostgreSQL |
-| **Фронтенд** | React 19, Vite, React Router, Chart.js, Font Awesome, Bootstrap 5 |
-| **Документация API** | Swagger / OpenAPI |
-| **Контейнеризация** | Docker + docker-compose (бэкенд + PostgreSQL) |
-| **Сервер** | VPS (Ubuntu 22.04) |
-| **Домен** | `studsovetsgn.ru` |
-| **HTTPS** | Let's Encrypt (автоматическое продление) |
-| **Деплой** | Полуавтоматический через bash-скрипт |
+<p align="center">
+  <a href="https://studsovetsgn.ru"><img src="https://img.shields.io/badge/studsovetsgn.ru-0CBFA1" /></a>
+  <img src="https://img.shields.io/badge/.NET-8.0-512BD4" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB" />
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1" />
+  <img src="https://img.shields.io/badge/Docker-ready-2496ED" />
+</p>
 
 ---
 
-## Роли в команде
+## О проекте
 
-| Роль | Участник | Вклад |
-|------|----------|-------|
-| **Аналитик** | Корнеев Александр | Анализ требований, проектирование API, документация, тестирование |
-| **Дизайнер** | Савин Иван | UI/UX дизайн, прототипирование, адаптивная вёрстка, создание макетов |
-| **Разработчик** | Ананьев Дмитрий | Архитектура бэкенда, разработка API, интеграция с PostgreSQL, React-фронтенд, DevOps |
+Внутренняя платформа для студенческого совета СГН МГТУ им. Н.Э. Баумана. Заменяет ручной учёт в таблицах и мессенджерах единой системой с ролевой моделью, геймификацией и аналитикой.
 
+**Что умеет:**
 
-## Актуальность
-
-- Студенческие советы сталкиваются с **хаотичным учётом** участников и мероприятий
-- Отсутствует **единая система мотивации** (баллы, уровни, бейджи)
-- Процессы **организации мероприятий** не автоматизированы
-- Нет **прозрачной статистики** активности студентов
-
-## Обоснование
-
-Проект решает проблемы:
-
-- Централизованное хранение данных о студентах, мероприятиях, наградах
-- Геймификация (уровни, опыт, баллы) повышает вовлечённость
-- Бейджи — цифровое подтверждение достижений
-- Ролевая модель (Admin/Leader/Member) разграничивает доступ
-
-
-## Анализ аналогов
-
-| Аналог | Тип | Сильные стороны | Слабые стороны (для студсовета) |
-|--------|-----|----------------|--------------------------------|
-| **Yougile** | Канбан‑доски | Бесплатный, удобен для планирования мероприятий, контроль дедлайнов | Нет геймификации, нет бейджей, нет ролей |
-| **Notion** | База знаний + задачи | Единая база знаний, гибкость, интеграции | Высокий порог входа, нет автоматической выдачи бейджей |
-| **Weeek** | Таск‑менеджер | Российский, бесплатен для студентов | Нет геймификации, нет учёта мероприятий |
-| **Trello** | Управление проектами | Простота, наглядность, бесплатная версия | Только канбан, не подходит для учёта бейджей |
-| **ЛидерТаск** | Планировщик | Российский, функциональный календарь | Нет бейджей, нет системы мотивации |
-| **Битрикс24** | CRM | Много функций, масштабируемость | Тяжёлый, дорогой, избыточен для студсовета |
-| **Google Forms + Excel** | Ручной учёт | Бесплатно, просто | Полностью ручное заполнение, нет автоматизации |
-
-**Вывод:** существующие решения не поддерживают геймификацию и ролевую модель. Разработка нашей платформы актуальна и востребована.
-
-
-## Функциональные возможности
-
-### Пользователи
-
-- Регистрация/создание администратором (пароль, email, ФИО, группа, контакты)
-- Роли: **Admin** (всё), **Leader** (просмотр), **Member** (базовый)
-- Загрузка/удаление аватара (jpg, png, gif, webp, ≤10 МБ)
-- Просмотр профиля (только своего или Admin/Leader)
-- Блокировка пользователя (Admin) – аннулирование сессий
-- Защита от удаления самого себя и последнего администратора
-- **Система уровней и опыта:** уровень = (опыт / 250) + 1
-- **Баллы** – начисляются за активность
-
-### Мероприятия
-
-- CRUD (только Admin)
-- Поля: название, описание, дата, место, бюджет, ссылка на регистрацию, ответственный
-- Статусы: `Upcoming` (планируется), `Completed` (завершено), `Cancelled` (отменено)
-- **Регистрация и фактическая явка** – подсчёт участников
-- Просмотр списка и деталей – Admin/Leader
-
-### Бейджи
-
-- Привязка пользователя к мероприятию с указанием роли (участник, волонтёр, организатор)
-- Загрузка/замена/удаление PDF-файла бейджа
-- Просмотр: свои – любой авторизованный, чужие/по мероприятию – Admin/Leader
-- Скачивание файла с проверкой прав
-
-### Аналитика
-
-- Общая статистика: количество участников, мероприятий, бейджей, уровней, баланс
-- Распределение ролей (диаграмма)
-- Динамика мероприятий по месяцам
-- Топ участников по активности
-- Топ мероприятий по бюджету и посещаемости
-
-### Двухфакторная аутентификация (2FA)
-
-- Включена для всех пользователей (опционально)
-- Активация через QR-код (Google Authenticator)
-- Поддержка резервных кодов
+- Учёт участников с ролями (Admin / Leader / Member)
+- Организация мероприятий: регистрация, явка, бюджет
+- Выдача бейджей с PDF-подтверждением
+- Аналитика: статистика, топы, динамика по месяцам
+- Двухфакторная аутентификация (TOTP)
 
 ---
 
-## Структура проекта
+## Структура
+
 ```text
 StudentCouncil/
-├── StudentCouncil.Data/ # Контекст БД, модели, миграции
-├── StudentCouncil.Logic/ # DTO, интерфейсы, сервисы, Mapper
-├── StudentCouncil.WebApi/ # Контроллеры API, Program.cs, wwwroot
-├── StudentCouncil.Frontend/ # React-приложение (Vite)
-├── docker-compose.yml # Контейнеризация бэкенда + PostgreSQL
-├── Dockerfile # Сборка бэкенда
-└── openapi.yaml # OpenAPI спецификация
+├── StudentCouncil.Data/      # DbContext, модели, миграции
+├── StudentCouncil.Logic/     # DTO, интерфейсы, сервисы
+├── StudentCouncil.WebApi/    # Контроллеры, Program.cs, wwwroot
+├── StudentCouncil.Frontend/  # React SPA (Vite)
+├── docker-compose.yml
+├── Dockerfile
+└── openapi.yaml
 ```
 
-##  API Endpoints
+##  Документация API
 
-### Account
+- [Swagger UI](https://digital-sgn.github.io/StudentCouncilPlatform-API)
+- [openapi.yaml](openapi.yaml) — спецификация в репозитории
+- Swagger в dev-режиме: `http://localhost:8080/swagger`
 
-| Метод | URL | Описание | Доступ |
-|-------|-----|----------|--------|
-| POST | `/api/account/login` | Вход (email, пароль) | Публичный |
-| POST | `/api/account/logout` | Выход | Авторизованный |
-| GET | `/api/account/me` | Текущий пользователь | Авторизованный |
-| POST | `/api/account/2fa/activation` | Активация 2FA | Публичный |
-| POST | `/api/account/2fa/verification` | Проверка кода 2FA | Публичный |
-| DELETE | `/api/account/2fa/{userId}` | Сброс 2FA | Admin |
+## Стек
 
-### Users
+**Backend**  
+![C#](https://img.shields.io/badge/C%23-239120?logo=c-sharp&logoColor=white)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core_8-512BD4?logo=.net&logoColor=white)
+![EF Core](https://img.shields.io/badge/EF_Core-512BD4)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 
-| Метод | URL | Описание | Доступ |
-|-------|-----|----------|--------|
-| GET | `/api/users` | Список пользователей | Admin, Leader |
-| GET | `/api/users/{id}` | Профиль пользователя | Свои или Admin |
-| POST | `/api/users` | Создать пользователя | Admin |
-| PUT | `/api/users/{id}` | Обновить данные пользователя | Свои или Admin |
-| DELETE | `/api/users/{id}` | Удалить пользователя | Admin |
-| POST | `/api/users/{id}/avatar` | Загрузить аватар | Свои или Admin |
-| DELETE | `/api/users/{id}/avatar` | Удалить аватар | Свои или Admin |
+**Frontend**  
+![React](https://img.shields.io/badge/React_19-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap_5-7952B3?logo=bootstrap&logoColor=white)
 
-### Events
+**Инфраструктура**  
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white)
+![Ubuntu](https://img.shields.io/badge/Ubuntu_22.04-E95420?logo=ubuntu&logoColor=white)
 
-| Метод | URL | Описание | Доступ |
-|-------|-----|----------|--------|
-| GET | `/api/events` | Список мероприятий | Admin, Leader |
-| GET | `/api/events/{id}` | Детали мероприятия | Admin, Leader |
-| POST | `/api/events` | Создать мероприятие | Admin |
-| PUT | `/api/events/{id}` | Обновить мероприятие | Admin |
-| DELETE | `/api/events/{id}` | Удалить мероприятие | Admin |
+---
 
-### Badges
+## Архитектура
 
-| Метод | URL | Описание | Доступ |
-|-------|-----|----------|--------|
-| GET | `/api/users/{userId}/badges` | Бейджи пользователя | Свои или Admin/Leader |
-| GET | `/api/events/{eventId}/badges` | Бейджи мероприятия | Admin, Leader |
-| GET | `/api/badges/{id}` | Детали бейджа | Свои или Admin/Leader |
-| GET | `/api/badges/{id}/file` | Скачать PDF-файл бейджа | Свои или Admin/Leader |
-| POST | `/api/badges/{id}/file` | Загрузить PDF-файл для бейджа | Admin |
-| POST | `/api/badges` | Создать бейдж (с файлом) | Admin |
-| PUT | `/api/badges/{id}` | Обновить бейдж | Admin |
-| DELETE | `/api/badges/{id}` | Удалить бейдж | Admin |
+### Схема БД
+```mermaid
+erDiagram
+    AspNetUsers ||--o{ Events : "ResponsibleUser"
+    AspNetUsers ||--o{ Badges : "User"
+    Events ||--o{ Badges : "Event"
+    AspNetUsers ||--o{ AspNetUserRoles : ""
+    AspNetRoles ||--o{ AspNetUserRoles : ""
 
+    AspNetUsers {
+        int Id PK
+        string UserName
+        string NormalizedUserName
+        string Email
+        string NormalizedEmail
+        bool EmailConfirmed
+        string PasswordHash
+        string SecurityStamp
+        string ConcurrencyStamp
+        string PhoneNumber
+        bool PhoneNumberConfirmed
+        bool TwoFactorEnabled
+        datetime LockoutEnd
+        bool LockoutEnabled
+        int AccessFailedCount
+        string FirstName "max 20, required"
+        string LastName "max 20, required"
+        string Patronymic "max 20"
+        string Group "max 10"
+        datetime BirthDate
+        string Telegram "max 20"
+        string ClothingSize "max 10"
+        string AvatarPath
+        int Balance
+        int TotalPointsEarned
+        int ExperiencePoints
+        int Level
+        int EventsAttended
+        int EventsOrganized
+        int TasksCompleted
+        bool IsActive
+        datetime JoinedAt
+        datetime LastActivityDate
+    }
 
-## Контейнеризация и деплой
+    Events {
+        int Id PK
+        string Title "max 100, required"
+        string Description "max 400"
+        datetime EventDate "required"
+        decimal Budget
+        string Location "max 100, required"
+        int RegisteredParticipants
+        int ActualParticipants
+        string RegistrationLink "max 200"
+        string PhotoPath "max 200"
+        int Status "Upcoming|Completed|Cancelled"
+        int ResponsibleUserId FK "required"
+        datetime CreatedAt
+        bool IsDeleted
+    }
 
-### Docker Compose
+    Badges {
+        int Id PK
+        int UserId FK "required"
+        int EventId FK "required"
+        string Role "max 100, required"
+        string FilePath "max 500, required"
+        datetime CreatedAt
+    }
 
-```yaml
-services:
-  postgres:        # PostgreSQL 16 
-  backend:         # ASP.NET Core 8 
-  frontend:        # Nginx со статикой
+    AspNetRoles {
+        int Id PK
+        string Name
+        string NormalizedName
+        string ConcurrencyStamp
+    }
+
+    AspNetUserRoles {
+        int UserId FK
+        int RoleId FK
+    }
+
+    AspNetUserClaims {
+        int Id PK
+        int UserId FK
+        string ClaimType
+        string ClaimValue
+    }
+
+    AspNetRoleClaims {
+        int Id PK
+        int RoleId FK
+        string ClaimType
+        string ClaimValue
+    }
+
+    AspNetUserLogins {
+        string LoginProvider PK
+        string ProviderKey PK
+        int UserId FK
+    }
+
+    AspNetUserTokens {
+        int UserId PK
+        string LoginProvider PK
+        string Name PK
+        string Value
+    }
 ```
 
-## Хост-инфраструктура
-- Хост-nginx слушает порты 80/443, отдаёт статику из /var/www/studsovetsgn
-- Proxy_pass для /api, /avatars, /badges, /music бэкенд (127.0.0.1:8080)
-- HTTPS настроен через Let's Encrypt (Certbot), автоматическое продление
-- Docker-тома: postgres_data (БД), backend_wwwroot (аватары, бейджи)
 
-## Деплой
-После пуша в feature/development на сервере выполняется:
+### Архитектура бэкенда
 
-```bash
-~/deploy.sh
+```mermaid
+flowchart TB
+    subgraph Web["StudentCouncil.Web (ASP.NET Core 8)"]
+        BC[BaseController<br/>HandleServiceResult]
+        AC[AccountController<br/>/api/account]
+        UC[UserController<br/>/api/users]
+        EC[EventController<br/>/api/events]
+        BDC[BadgeController<br/>/api/badges]
+    end
+
+    subgraph Logic["StudentCouncil.Logic"]
+        SR[ServiceResult / ServiceResult&lt;T&gt;]
+        MAP[Mapper]
+        subgraph Interfaces
+            IUS[IUserService]
+            IES[IEventService]
+            IBS[IBadgeService]
+            IFS[IFileStorageService]
+            ILS[ILoggerService]
+        end
+        subgraph Services
+            US[UserService]
+            ES[EventService]
+            BS[BadgeService]
+            FS[FileStorageService]
+            LS[FileLoggerService]
+        end
+    end
+
+    subgraph Data["StudentCouncil.Data"]
+        DB[AppDbContext<br/>IdentityDbContext]
+        subgraph Models
+            UM[User]
+            EM[Event]
+            BM[Badge]
+        end
+    end
+
+    PG[(PostgreSQL)]
+
+    AC --> IUS
+    UC --> IUS
+    EC --> IES
+    BDC --> IBS
+    BDC --> IFS
+
+    IUS -.реализует.-> US
+    IES -.реализует.-> ES
+    IBS -.реализует.-> BS
+    IFS -.реализует.-> FS
+    ILS -.реализует.-> LS
+
+    US --> MAP
+    ES --> MAP
+    BS --> MAP
+    US --> DB
+    ES --> DB
+    BS --> DB
+    DB --> UM
+    DB --> EM
+    DB --> BM
+    DB --> PG
+
+    style Web fill:#512BD4,color:#fff
+    style Logic fill:#0CBFA1,color:#04120e
+    style Data fill:#148C9C,color:#fff
 ```
-Скрипт автоматически:
-- 1.git pull origin feature/development
-- 2.Пересобирает бэкенд 
-- 3.Пересобирает фронтенд и копирует статику
-- 4.Перезагружает nginx
-- 5.Очищает неиспользуемые образы Docker
 
-# Безопасность
-- Пароли хешируются Identity
-- Ролевая модель (Admin/Leader/Member)
-- Загрузка файлов с проверкой MIME-типов 
-- HTTPS + автоматическое обновление сертификатов
 
+### Зависимости сервисов
+
+```mermaid
+flowchart LR
+    subgraph UserService
+        US[UserService]
+        UM[UserManager&lt;User&gt;]
+        UFS[IFileStorageService]
+        ULS[ILoggerService]
+    end
+
+    subgraph EventService
+        ES[EventService]
+        ECtx[AppDbContext]
+        EFS[IFileStorageService]
+        ELS[ILoggerService]
+    end
+
+    subgraph BadgeService
+        BS[BadgeService]
+        BCtx[AppDbContext]
+        BFS[IFileStorageService]
+        BLS[ILoggerService]
+    end
+
+    US --> UM
+    US --> UFS
+    US --> ULS
+
+    ES --> ECtx
+    ES --> EFS
+    ES --> ELS
+
+    BS --> BCtx
+    BS --> BFS
+    BS --> BLS
+```
+
+### DI-регистрация
+
+```mermaid
+flowchart LR
+    DI[ServiceCollection]
+    DI -->|Transient| IUS[IUserService → UserService]
+    DI -->|Transient| IES[IEventService → EventService]
+    DI -->|Transient| IBS[IBadgeService → BadgeService]
+    DI -->|Transient| IFS[IFileStorageService → FileStorageService]
+    DI -->|Singleton| ILS[ILoggerService → FileLoggerService]
+    DI -->|Scoped| DB[AppDbContext]
+    DI -->|Identity| IM[UserManager, SignInManager, RoleManager]
+```
+
+### ServiceResult — паттерн ответа
+
+```mermaid
+flowchart TB
+    Service[Сервис] -->|Ok / Created| Success
+    Service -->|BadRequest / NotFound| ClientError
+    Service -->|Forbidden / Unauthorized| AuthError
+    Service -->|Conflict / InternalError| Other
+
+    Success -->|200 / 201| JSON["{ data } или { message }"]
+    ClientError -->|400 / 404| JSONErr["{ error: message }"]
+    AuthError -->|401 / 403| JSONErr
+    Other -->|409 / 500| JSONErr
+```
+
+### Аутентификация
+
+```mermaid
+flowchart TB
+    Login[POST /api/account/login] --> Find[FindByEmailAsync]
+    Find --> CheckPwd[CheckPasswordAsync]
+    CheckPwd --> TwoFA{2FA включена?}
+    TwoFA -->|Нет| Setup[Вернуть 402<br/>+ TOTP-ключ]
+    TwoFA -->|Да| SignIn[PasswordSignInAsync]
+    SignIn -->|Succeeded| OK[200 + cookie]
+    SignIn -->|RequiresTwoFactor| Code[403<br/>+ requiresTwoFactorCode]
+    SignIn -->|Fail| Bad[401]
+
+    Code --> Verify[POST /2fa/verification]
+    Verify --> TOTP[TwoFactorAuthenticatorSignInAsync]
+    TOTP -->|OK| OK2[200 + cookie]
+
+    style Setup fill:#ffd700,color:#04120e
+    style Code fill:#ffd700,color:#04120e
+```
+
+---
+
+## Локальный запуск
+
+---
+
+## Docker
+
+---
+
+
+## Ссылки
+
+- Сайт: [studsovetsgn.ru](https://studsovetsgn.ru)
+- Справочник отдела: [Handbook](https://github.com/Digital-SGN/Handbook)
+- Организация на GitHub: [Digital-SGN](https://github.com/Digital-SGN)
+
+---
+
+<p align="center">
+  <sub>Отдел цифрового развития ССФ СГН · 2026</sub>
+</p>
