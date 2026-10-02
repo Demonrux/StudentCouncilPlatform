@@ -73,6 +73,145 @@ StudentCouncil/
 
 ## Архитектура
 
+### ER-диаграмма БД
+```mermaid
+erDiagram
+    AspNetUsers ||--o{ Events : "ответственный"
+    AspNetUsers ||--o{ Badges : "получает"
+    Events ||--o{ Badges : "выдаются за"
+
+    AspNetUsers {
+        int Id PK
+        string Email
+        string NormalizedEmail
+        string UserName
+        string PasswordHash
+        string SecurityStamp
+        bool TwoFactorEnabled
+        bool IsActive
+        string FirstName
+        string LastName
+        string Patronymic
+        string Group
+        string Telegram
+        string PhoneNumber
+        string ClothingSize
+        datetime BirthDate
+        string AvatarPath
+        datetime JoinedAt
+        datetime LastActivityDate
+        int Balance
+        int ExperiencePoints
+        int Level
+        int EventsAttended
+        int EventsOrganized
+        int TasksCompleted
+        int TotalPointsEarned
+    }
+
+    Events {
+        int Id PK
+        string Title
+        string Description
+        double Budget
+        datetime EventDate
+        string Location
+        int RegisteredParticipants
+        int ActualParticipants
+        string RegistrationLink
+        int ResponsibleUserId FK
+        int Status
+        string PhotoPath
+    }
+
+    Badges {
+        int Id PK
+        int UserId FK
+        int EventId FK
+        string Role
+        string FilePath
+    }
+
+    AspNetRoles {
+        int Id PK
+        string Name
+        string NormalizedName
+    }
+
+    AspNetUserRoles {
+        int UserId FK
+        int RoleId FK
+    }
+
+    AspNetUsers ||--o{ AspNetUserRoles : "имеет"
+    AspNetRoles ||--o{ AspNetUserRoles : "назначается"
+```
+
+
+### Архитектура слоёв
+
+```mermaid
+flowchart TD
+    Client[Браузер<br/>React SPA] -->|HTTPS| Nginx[Nginx<br/>reverse proxy + статика]
+    Nginx -->|/api /avatars /badges| WebApi[StudentCouncil.WebApi<br/>контроллеры]
+    Nginx -->|/| Static[Статика React<br/>/var/www/studsovetsgn]
+    
+    WebApi --> Logic[StudentCouncil.Logic<br/>сервисы, DTO]
+    Logic --> Data[StudentCouncil.Data<br/>EF Core, модели]
+    Data --> Postgres[(PostgreSQL)]
+    
+    WebApi -.->|файлы| Volume[Docker volume<br/>backend_wwwroot]
+    
+    style Client fill:#0CBFA1,color:#04120e
+    style Nginx fill:#148C9C,color:#fff
+    style WebApi fill:#512BD4,color:#fff
+    style Logic fill:#512BD4,color:#fff
+    style Data fill:#512BD4,color:#fff
+    style Postgres fill:#4169E1,color:#fff
+```
+
+
+### Компоненты бэкенда 
+
+```mermaid
+flowchart LR
+    subgraph Controllers
+        AC[AccountController]
+        UC[UsersController]
+        EC[EventsController]
+        BC[BadgesController]
+    end
+
+    subgraph Services
+        US[UserService]
+        ES[EventService]
+        BS[BadgeService]
+        FS[FileStorageService]
+    end
+
+    subgraph Interfaces
+        IUS[IUserService]
+        IES[IEventService]
+        IBS[IBadgeService]
+        IFS[IFileStorageService]
+    end
+
+    AC --> IUS
+    UC --> IUS
+    EC --> IES
+    BC --> IBS
+    BC --> IFS
+
+    IUS -.-> US
+    IES -.-> ES
+    IBS -.-> BS
+    IFS -.-> FS
+
+    style AC fill:#512BD4,color:#fff
+    style UC fill:#512BD4,color:#fff
+    style EC fill:#512BD4,color:#fff
+    style BC fill:#512BD4,color:#fff
+```
 ---
 
 ## Локальный запуск
