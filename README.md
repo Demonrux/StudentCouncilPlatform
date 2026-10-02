@@ -185,70 +185,165 @@ erDiagram
 ```
 
 
-### Архитектура слоёв
+### Архитектура бэкенда
 
 ```mermaid
-flowchart TD
-    Client[Браузер<br/>React SPA] -->|HTTPS| Nginx[Nginx<br/>reverse proxy + статика]
-    Nginx -->|/api /avatars /badges| WebApi[StudentCouncil.WebApi<br/>контроллеры]
-    Nginx -->|/| Static[Статика React<br/>/var/www/studsovetsgn]
-    
-    WebApi --> Logic[StudentCouncil.Logic<br/>сервисы, DTO]
-    Logic --> Data[StudentCouncil.Data<br/>EF Core, модели]
-    Data --> Postgres[(PostgreSQL)]
-    
-    WebApi -.->|файлы| Volume[Docker volume<br/>backend_wwwroot]
-    
-    style Client fill:#0CBFA1,color:#04120e
-    style Nginx fill:#148C9C,color:#fff
-    style WebApi fill:#512BD4,color:#fff
-    style Logic fill:#512BD4,color:#fff
-    style Data fill:#512BD4,color:#fff
-    style Postgres fill:#4169E1,color:#fff
-```
-
-
-### Компоненты бэкенда 
-
-```mermaid
-flowchart LR
-    subgraph Controllers
-        AC[AccountController]
-        UC[UsersController]
-        EC[EventsController]
-        BC[BadgesController]
+flowchart TB
+    subgraph Web["StudentCouncil.Web (ASP.NET Core 8)"]
+        BC[BaseController<br/>HandleServiceResult]
+        AC[AccountController<br/>/api/account]
+        UC[UserController<br/>/api/users]
+        EC[EventController<br/>/api/events]
+        BDC[BadgeController<br/>/api/badges]
     end
 
-    subgraph Services
-        US[UserService]
-        ES[EventService]
-        BS[BadgeService]
-        FS[FileStorageService]
+    subgraph Logic["StudentCouncil.Logic"]
+        SR[ServiceResult / ServiceResult&lt;T&gt;]
+        MAP[Mapper]
+        subgraph Interfaces
+            IUS[IUserService]
+            IES[IEventService]
+            IBS[IBadgeService]
+            IFS[IFileStorageService]
+            ILS[ILoggerService]
+        end
+        subgraph Services
+            US[UserService]
+            ES[EventService]
+            BS[BadgeService]
+            FS[FileStorageService]
+            LS[FileLoggerService]
+        end
     end
 
-    subgraph Interfaces
-        IUS[IUserService]
-        IES[IEventService]
-        IBS[IBadgeService]
-        IFS[IFileStorageService]
+    subgraph Data["StudentCouncil.Data"]
+        DB[AppDbContext<br/>IdentityDbContext]
+        subgraph Models
+            UM[User]
+            EM[Event]
+            BM[Badge]
+        end
     end
+
+    PG[(PostgreSQL)]
 
     AC --> IUS
     UC --> IUS
     EC --> IES
-    BC --> IBS
-    BC --> IFS
+    BDC --> IBS
+    BDC --> IFS
 
-    IUS -.-> US
-    IES -.-> ES
-    IBS -.-> BS
-    IFS -.-> FS
+    IUS -.реализует.-> US
+    IES -.реализует.-> ES
+    IBS -.реализует.-> BS
+    IFS -.реализует.-> FS
+    ILS -.реализует.-> LS
 
-    style AC fill:#512BD4,color:#fff
-    style UC fill:#512BD4,color:#fff
-    style EC fill:#512BD4,color:#fff
-    style BC fill:#512BD4,color:#fff
+    US --> MAP
+    ES --> MAP
+    BS --> MAP
+    US --> DB
+    ES --> DB
+    BS --> DB
+    DB --> UM
+    DB --> EM
+    DB --> BM
+    DB --> PG
+
+    style Web fill:#512BD4,color:#fff
+    style Logic fill:#0CBFA1,color:#04120e
+    style Data fill:#148C9C,color:#fff
 ```
+
+
+### Зависимости сервисов
+
+```mermaid
+flowchart LR
+    subgraph UserService
+        US[UserService]
+        UM[UserManager&lt;User&gt;]
+        UFS[IFileStorageService]
+        ULS[ILoggerService]
+    end
+
+    subgraph EventService
+        ES[EventService]
+        ECtx[AppDbContext]
+        EFS[IFileStorageService]
+        ELS[ILoggerService]
+    end
+
+    subgraph BadgeService
+        BS[BadgeService]
+        BCtx[AppDbContext]
+        BFS[IFileStorageService]
+        BLS[ILoggerService]
+    end
+
+    US --> UM
+    US --> UFS
+    US --> ULS
+
+    ES --> ECtx
+    ES --> EFS
+    ES --> ELS
+
+    BS --> BCtx
+    BS --> BFS
+    BS --> BLS
+```
+
+### DI-регистрация
+
+```mermaid
+flowchart LR
+    DI[ServiceCollection]
+    DI -->|Transient| IUS[IUserService → UserService]
+    DI -->|Transient| IES[IEventService → EventService]
+    DI -->|Transient| IBS[IBadgeService → BadgeService]
+    DI -->|Transient| IFS[IFileStorageService → FileStorageService]
+    DI -->|Singleton| ILS[ILoggerService → FileLoggerService]
+    DI -->|Scoped| DB[AppDbContext]
+    DI -->|Identity| IM[UserManager, SignInManager, RoleManager]
+```
+
+### ServiceResult — паттерн ответа
+
+```mermaid
+flowchart TB
+    Service[Сервис] -->|Ok / Created| Success
+    Service -->|BadRequest / NotFound| ClientError
+    Service -->|Forbidden / Unauthorized| AuthError
+    Service -->|Conflict / InternalError| Other
+
+    Success -->|200 / 201| JSON["{ data } или { message }"]
+    ClientError -->|400 / 404| JSONErr["{ error: message }"]
+    AuthError -->|401 / 403| JSONErr
+    Other -->|409 / 500| JSONErr
+```
+
+### Аутентификация
+
+```mermaid
+flowchart TB
+    Login[POST /api/account/login] --> Find[FindByEmailAsync]
+    Find --> CheckPwd[CheckPasswordAsync]
+    CheckPwd --> TwoFA{2FA включена?}
+    TwoFA -->|Нет| Setup[Вернуть 402<br/>+ TOTP-ключ]
+    TwoFA -->|Да| SignIn[PasswordSignInAsync]
+    SignIn -->|Succeeded| OK[200 + cookie]
+    SignIn -->|RequiresTwoFactor| Code[403<br/>+ requiresTwoFactorCode]
+    SignIn -->|Fail| Bad[401]
+
+    Code --> Verify[POST /2fa/verification]
+    Verify --> TOTP[TwoFactorAuthenticatorSignInAsync]
+    TOTP -->|OK| OK2[200 + cookie]
+
+    style Setup fill:#ffd700,color:#04120e
+    style Code fill:#ffd700,color:#04120e
+```
+
 ---
 
 ## Локальный запуск
